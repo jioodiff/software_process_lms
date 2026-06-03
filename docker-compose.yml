@@ -1,0 +1,67 @@
+services:
+  # Database Service (MySQL 8.0)
+  db:
+    image: mysql:8.0
+    container_name: laravel_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - laravel_network
+
+  # Redis Service (Untuk Cache, Session, dan Queue)
+  redis:
+    image: redis:alpine
+    container_name: laravel_redis
+    restart: always
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    networks:
+      - laravel_network
+
+  # Mailpit (Alat testing email lokal)
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    container_name: laravel_mailpit
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025" # SMTP port
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025" # Web Dashboard
+    networks:
+      - laravel_network
+
+  # PHP 8.4 & Web Server Service
+  app:
+    image: php:8.4-apache
+    container_name: laravel_app
+    restart: always
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - ./www:/var/www/html
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/html/public
+    networks:
+      - laravel_network
+    command: >
+      sh -c "sed -ri -e 's!/var/www/html!$${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf &&
+             sed -ri -e 's!/var/www/html!$${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf &&
+             a2enmod rewrite &&
+             docker-php-ext-install pdo_mysql mysqli &&
+             apache2-foreground"
+
+networks:
+  laravel_network:
+    driver: bridge
+
+volumes:
+  db_data:
