@@ -1,0 +1,437 @@
+{
+  "name": "Final Workflow (Notifikasi Lengkap)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lab-management",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [ 200, 400 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.event }}",
+              "value2": "borrowing.submitted"
+            }
+          ]
+        }
+      },
+      "id": "if-submitted",
+      "name": "IF: Submitted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 420, 60 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.event }}",
+              "value2": "borrowing.approved"
+            }
+          ]
+        }
+      },
+      "id": "if-approved",
+      "name": "IF: Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 420, 200 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.event }}",
+              "value2": "borrowing.rejected"
+            }
+          ]
+        }
+      },
+      "id": "if-rejected",
+      "name": "IF: Rejected",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 420, 340 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.event }}",
+              "value2": "borrowing.returned"
+            }
+          ]
+        }
+      },
+      "id": "if-returned",
+      "name": "IF: Returned",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 420, 480 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.event }}",
+              "value2": "borrowing.late"
+            }
+          ]
+        }
+      },
+      "id": "if-late",
+      "name": "IF: Late",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 420, 620 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.event }}",
+              "value2": "borrowing.handed_over"
+            }
+          ]
+        }
+      },
+      "id": "if-handed-over",
+      "name": "IF: Handed Over",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 420, 760 ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email_subject",
+              "value": "Pengajuan Peminjaman Diterima"
+            },
+            {
+              "name": "email_body",
+              "value": "=Halo {{ $json.body.student_name }},\n\nPengajuan peminjaman alat Anda telah DITERIMA oleh sistem dan sedang menunggu persetujuan Admin.\n\nID Peminjaman: #{{ $json.body.borrowing_id }}\nAlat: {{ $json.body.tool_name }}\n\nMohon ditunggu info selanjutnya.\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tpl-submitted",
+      "name": "Template: Pengajuan Diterima",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [ 700, 60 ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email_subject",
+              "value": "Peminjaman Alat Disetujui"
+            },
+            {
+              "name": "email_body",
+              "value": "=Halo {{ $json.body.student_name }},\n\nPeminjaman alat Anda telah DISETUJUI.\n\nID Peminjaman: #{{ $json.body.borrowing_id }}\nAlat: {{ $json.body.tool_name }}\nTanggal Pinjam: {{ $json.body.borrow_date }}\nTanggal Kembali: {{ $json.body.return_date }}\n\nSilakan ambil alat di laboratorium.\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tpl-approved",
+      "name": "Template: Peminjaman Disetujui",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [ 700, 200 ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email_subject",
+              "value": "Pengajuan Peminjaman Ditolak"
+            },
+            {
+              "name": "email_body",
+              "value": "=Halo {{ $json.body.student_name }},\n\nMohon maaf, pengajuan peminjaman alat Anda telah DITOLAK oleh Admin.\n\nID Peminjaman: #{{ $json.body.borrowing_id }}\nAlat: {{ $json.body.tool_name }}\nCatatan Admin: {{ $json.body.admin_note }}\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tpl-rejected",
+      "name": "Template: Peminjaman Ditolak",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [ 700, 340 ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email_subject",
+              "value": "Pengembalian Alat Dicatat"
+            },
+            {
+              "name": "email_body",
+              "value": "=Halo {{ $json.body.student_name }},\n\nAlat yang Anda pinjam telah berhasil DIKEMBALIKAN.\n\nID Peminjaman: #{{ $json.body.borrowing_id }}\nAlat: {{ $json.body.tool_name }}\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tpl-returned",
+      "name": "Template: Pengembalian Dicatat",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [ 700, 480 ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email_subject",
+              "value": "[PENTING] Pengingat Keterlambatan Alat"
+            },
+            {
+              "name": "email_body",
+              "value": "=Halo {{ $json.body.student_name }},\n\nIni adalah pengingat bahwa Anda belum mengembalikan alat laboratorium yang seharusnya dikembalikan pada {{ $json.body.return_date }}.\n\nID Peminjaman: #{{ $json.body.borrowing_id }}\nAlat: {{ $json.body.tool_name }}\n\nMohon segera kembalikan alat tersebut ke laboratorium.\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tpl-late",
+      "name": "Template: Reminder Terlambat",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [ 700, 620 ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email_subject",
+              "value": "Alat Telah Diserahkan"
+            },
+            {
+              "name": "email_body",
+              "value": "=Halo {{ $json.body.student_name }},\n\nAlat peminjaman Anda telah BERHASIL DISERAHKAN oleh admin laboratorium kepada Anda dan statusnya sekarang adalah Dipinjam.\n\nID Peminjaman: #{{ $json.body.borrowing_id }}\nAlat: {{ $json.body.tool_name }}\nBatas Waktu Kembali: {{ $json.body.return_date }}\n\nHarap jaga alat dengan baik dan kembalikan tepat waktu.\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tpl-handed-over",
+      "name": "Template: Alat Diserahkan",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [ 700, 760 ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "muhammadzio04@gmail.com",
+        "toEmail": "={{ $json.body.student_email }}",
+        "subject": "={{ $json.email_subject }}",
+        "text": "={{ $json.email_body }}"
+      },
+      "id": "send-email-final",
+      "name": "Send Email to student_email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [ 1000, 400 ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "IF: Submitted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF: Approved",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF: Rejected",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF: Returned",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF: Late",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF: Handed Over",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Submitted": {
+      "main": [
+        [
+          {
+            "node": "Template: Pengajuan Diterima",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Approved": {
+      "main": [
+        [
+          {
+            "node": "Template: Peminjaman Disetujui",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Rejected": {
+      "main": [
+        [
+          {
+            "node": "Template: Peminjaman Ditolak",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Returned": {
+      "main": [
+        [
+          {
+            "node": "Template: Pengembalian Dicatat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Late": {
+      "main": [
+        [
+          {
+            "node": "Template: Reminder Terlambat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Handed Over": {
+      "main": [
+        [
+          {
+            "node": "Template: Alat Diserahkan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template: Pengajuan Diterima": {
+      "main": [
+        [
+          {
+            "node": "Send Email to student_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template: Peminjaman Disetujui": {
+      "main": [
+        [
+          {
+            "node": "Send Email to student_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template: Peminjaman Ditolak": {
+      "main": [
+        [
+          {
+            "node": "Send Email to student_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template: Pengembalian Dicatat": {
+      "main": [
+        [
+          {
+            "node": "Send Email to student_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template: Reminder Terlambat": {
+      "main": [
+        [
+          {
+            "node": "Send Email to student_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template: Alat Diserahkan": {
+      "main": [
+        [
+          {
+            "node": "Send Email to student_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "4"
+}

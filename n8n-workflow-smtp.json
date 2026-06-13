@@ -1,0 +1,124 @@
+{
+  "name": "Workflow 1 (Notifikasi Status Peminjaman via SMTP Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lab-management",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.body.event }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "borrowing.approved",
+              "output": 0
+            },
+            {
+              "value2": "borrowing.rejected",
+              "output": 1
+            },
+            {
+              "value2": "borrowing.returned",
+              "output": 2
+            }
+          ]
+        }
+      },
+      "id": "switch-node",
+      "name": "Switch Event",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1.0,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "zioadriann@gmail.com",
+        "toEmail": "={{ $json.body.student_email }}",
+        "subject": "Peminjaman Alat Disetujui!",
+        "text": "=Halo {{ $json.body.student_name }},\n\nPengajuan peminjaman alat laboratorium Anda telah DISETUJUI oleh Admin.\n\nDetail Peminjaman:\n- ID Peminjaman: #{{ $json.body.borrowing_id }}\n- Alat: {{ $json.body.tool_name }}\n- Tanggal Pinjam: {{ $json.body.borrow_date }}\n- Tanggal Kembali: {{ $json.body.return_date }}\n\nSilakan datang ke laboratorium pada tanggal peminjaman untuk mengambil alat.\n\nTerima kasih."
+      },
+      "id": "email-approve",
+      "name": "Send Email (Approved)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [700, 140]
+    },
+    {
+      "parameters": {
+        "fromEmail": "zioadriann@gmail.com",
+        "toEmail": "={{ $json.body.student_email }}",
+        "subject": "Pengajuan Peminjaman Alat Ditolak",
+        "text": "=Halo {{ $json.body.student_name }},\n\nMohon maaf, pengajuan peminjaman alat laboratorium Anda telah DITOLAK oleh Admin.\n\nDetail Peminjaman:\n- ID Peminjaman: #{{ $json.body.borrowing_id }}\n- Alat: {{ $json.body.tool_name }}\n- Catatan Admin: {{ $json.body.admin_note }}\n\nSilakan ajukan peminjaman ulang jika diperlukan, atau hubungi admin laboratorium.\n\nTerima kasih."
+      },
+      "id": "email-reject",
+      "name": "Send Email (Rejected)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "zioadriann@gmail.com",
+        "toEmail": "={{ $json.body.student_email }}",
+        "subject": "Pengembalian Alat Berhasil",
+        "text": "=Halo {{ $json.body.student_name }},\n\nTerima kasih, alat laboratorium yang Anda pinjam telah berhasil DIKEMBALIKAN.\n\nDetail Peminjaman:\n- ID Peminjaman: #{{ $json.body.borrowing_id }}\n- Alat: {{ $json.body.tool_name }}\n\nTerima kasih atas kerja samanya menjaga fasilitas laboratorium.\n\nSalam."
+      },
+      "id": "email-return",
+      "name": "Send Email (Returned)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [700, 460]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Event": {
+      "main": [
+        [
+          {
+            "node": "Send Email (Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Email (Rejected)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Email (Returned)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}
