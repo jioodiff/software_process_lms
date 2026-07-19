@@ -1,0 +1,308 @@
+{
+  "name": "Final Workflow (Notifikasi WhatsApp)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lms-webhook",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [0, 400],
+      "webhookId": "lms-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $json.body.event }}", "value2": "borrowing.submitted" } ] }
+      },
+      "id": "if-submitted",
+      "name": "IF: Submitted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, -100]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $json.body.event }}", "value2": "borrowing.approved" } ] }
+      },
+      "id": "if-approved",
+      "name": "IF: Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, 100]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $json.body.event }}", "value2": "borrowing.rejected" } ] }
+      },
+      "id": "if-rejected",
+      "name": "IF: Rejected",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $json.body.event }}", "value2": "borrowing.returned" } ] }
+      },
+      "id": "if-returned",
+      "name": "IF: Returned",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, 500]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $json.body.event }}", "value2": "borrowing.overdue" } ] }
+      },
+      "id": "if-late",
+      "name": "IF: Late",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, 700]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $json.body.event }}", "value2": "borrowing.handed_over" } ] }
+      },
+      "id": "if-handed-over",
+      "name": "IF: Handed Over",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [250, 900]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Pengajuan Peminjaman Diterima" },
+            { "name": "message", "value": "=Halo {{ $json.body.student_name }}! 👋\n\nPengajuan peminjaman alat Anda telah KAMI TERIMA dan sedang menunggu persetujuan.\n\n🔹 ID Peminjaman: #{{ $json.body.borrowing_id }}\n\nRincian Alat:\n{{ $json.body.items_detail_string }}\n\nKami akan segera memproses pengajuan Anda." }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template-submitted",
+      "name": "Template: Pengajuan Diterima",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [500, -100]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Peminjaman Alat Disetujui" },
+            { "name": "message", "value": "=Halo {{ $json.body.student_name }}! 🎉\n\nPengajuan peminjaman alat Anda telah DISETUJUI.\n\n🔹 ID Peminjaman: #{{ $json.body.borrowing_id }}\n\nRincian Alat:\n{{ $json.body.items_detail_string }}\n\nSilakan mengambil alat di Laboratorium pada tanggal {{ $json.body.borrow_date }}." }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template-approved",
+      "name": "Template: Peminjaman Disetujui",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [500, 100]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Peminjaman Alat Ditolak" },
+            { "name": "message", "value": "=Halo {{ $json.body.student_name }}! ❌\n\nMohon maaf, pengajuan peminjaman alat Anda DITOLAK.\n\n🔹 ID Peminjaman: #{{ $json.body.borrowing_id }}\n\nRincian Alat:\n{{ $json.body.items_detail_string }}\n\nCatatan Admin: {{ $json.body.admin_note }}\n\nTerima kasih." }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template-rejected",
+      "name": "Template: Peminjaman Ditolak",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Pengembalian Alat Dicatat" },
+            { "name": "message", "value": "=Halo {{ $json.body.student_name }}! ✅\n\nAlat peminjaman Anda telah BERHASIL DIKEMBALIKAN dengan rincian kondisi sebagai berikut:\n\n🔹 ID Peminjaman: #{{ $json.body.borrowing_id }}\n\n{{ $json.body.items_detail_string }}\n\nTerima kasih sudah menjaga fasilitas Laboratorium dengan baik!" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template-returned",
+      "name": "Template: Pengembalian Dicatat",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [500, 500]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Peringatan Terlambat" },
+            { "name": "message", "value": "=Halo {{ $json.body.student_name }}! ⚠️\n\nPeringatan! Peminjaman alat Anda telah MELEWATI BATAS WAKTU pengembalian.\n\n🔹 ID Peminjaman: #{{ $json.body.borrowing_id }}\n\nRincian Alat:\n{{ $json.body.items_detail_string }}\n\nBatas Pengembalian: {{ $json.body.return_date }}\n\nHarap segera mengembalikan alat tersebut ke Laboratorium." }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template-late",
+      "name": "Template: Reminder Terlambat",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [500, 700]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Alat Telah Diserahkan" },
+            { "name": "message", "value": "=Halo {{ $json.body.student_name }}! 📦\n\nAlat peminjaman Anda telah DISERAHKAN dan siap digunakan.\n\n🔹 ID Peminjaman: #{{ $json.body.borrowing_id }}\n\nRincian Alat:\n{{ $json.body.items_detail_string }}\n\nHarap menjaga alat dengan baik dan mengembalikan paling lambat tanggal {{ $json.body.return_date }}." }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template-handed-over",
+      "name": "Template: Alat Diserahkan",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [500, 900]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "KUNCIRAHASIAWAHASISTEMINFORMASI2026!"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "chatId", "value": "={{ ($json.body.student_whatsapp || '').replace(/^0/, '62') }}@c.us" },
+            { "name": "text", "value": "={{ $json.message }}" },
+            { "name": "session", "value": "default" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-waha",
+      "name": "Send to WAHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.student_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send an Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [800, 500]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          { "node": "IF: Submitted", "type": "main", "index": 0 },
+          { "node": "IF: Approved", "type": "main", "index": 0 },
+          { "node": "IF: Rejected", "type": "main", "index": 0 },
+          { "node": "IF: Returned", "type": "main", "index": 0 },
+          { "node": "IF: Late", "type": "main", "index": 0 },
+          { "node": "IF: Handed Over", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF: Submitted": {
+      "main": [
+        [ { "node": "Template: Pengajuan Diterima", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF: Approved": {
+      "main": [
+        [ { "node": "Template: Peminjaman Disetujui", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF: Rejected": {
+      "main": [
+        [ { "node": "Template: Peminjaman Ditolak", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF: Returned": {
+      "main": [
+        [ { "node": "Template: Pengembalian Dicatat", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF: Late": {
+      "main": [
+        [ { "node": "Template: Reminder Terlambat", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF: Handed Over": {
+      "main": [
+        [ { "node": "Template: Alat Diserahkan", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Template: Pengajuan Diterima": {
+      "main": [
+        [
+          { "node": "Send to WAHA", "type": "main", "index": 0 },
+          { "node": "Send an Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Template: Peminjaman Disetujui": {
+      "main": [
+        [
+          { "node": "Send to WAHA", "type": "main", "index": 0 },
+          { "node": "Send an Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Template: Peminjaman Ditolak": {
+      "main": [
+        [
+          { "node": "Send to WAHA", "type": "main", "index": 0 },
+          { "node": "Send an Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Template: Pengembalian Dicatat": {
+      "main": [
+        [
+          { "node": "Send to WAHA", "type": "main", "index": 0 },
+          { "node": "Send an Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Template: Reminder Terlambat": {
+      "main": [
+        [
+          { "node": "Send to WAHA", "type": "main", "index": 0 },
+          { "node": "Send an Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Template: Alat Diserahkan": {
+      "main": [
+        [
+          { "node": "Send to WAHA", "type": "main", "index": 0 },
+          { "node": "Send an Email", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  }
+}

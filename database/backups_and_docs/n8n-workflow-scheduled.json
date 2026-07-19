@@ -1,0 +1,178 @@
+{
+  "name": "Final Workflow 2 (Reminder Terlambat Pagi)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8000/api/v1/borrowings/overdue",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-Api-Key",
+              "value": "KUNCI-RAHASIA-N8N-2026"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-overdue",
+      "name": "GET API Laravel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [200, 0]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "id": "split-data",
+      "name": "Item Lists",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [400, 0]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "subject",
+              "value": "⚠️ Peringatan Keterlambatan Pengembalian Alat"
+            },
+            {
+              "name": "message",
+              "value": "=Halo {{ $json.student_name }}! ⚠️\n\nKami ingin mengingatkan bahwa pengajuan peminjaman alat Anda telah MELEWATI batas waktu pengembalian yang disepakati.\n\n🔹 ID Peminjaman: #{{ $json.borrowing_id }}\n🔹 Tanggal Seharusnya Kembali: {{ $json.return_date }}\n\nRincian Alat yang belum dikembalikan:\n{{ $json.items_detail_string }}\n\nHarap SEGERA mengembalikan alat-alat tersebut ke Laboratorium untuk menghindari sanksi atau denda keterlambatan.\n\nTerima kasih."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "template",
+      "name": "Template Notifikasi",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [600, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "KUNCIRAHASIAWAHASISTEMINFORMASI2026!"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chatId",
+              "value": "={{ ($json.student_whatsapp || '').replace(/^0/, '62') }}@c.us"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "session",
+              "value": "default"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "waha",
+      "name": "Send to WAHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, -100]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.student_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "id": "email",
+      "name": "Send an Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [800, 100]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET API Laravel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET API Laravel": {
+      "main": [
+        [
+          {
+            "node": "Item Lists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists": {
+      "main": [
+        [
+          {
+            "node": "Template Notifikasi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template Notifikasi": {
+      "main": [
+        [
+          {
+            "node": "Send to WAHA",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
