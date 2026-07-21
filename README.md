@@ -1,6 +1,6 @@
 # Lab Management System (LMS) - Universitas IPWIJA 🎓
 
-Aplikasi LMS berbasis website buat mempermudah administrasi lab, manajemen stok barang, dan proses pinjam-meminjam alat buat mahasiswa. Aplikasi ini juga udah nyambung ke n8n buat kirim notif otomatis via Email/WhatsApp lho!
+Aplikasi LMS berbasis website buat mempermudah administrasi lab, manajemen stok barang, dan proses pinjam-meminjam alat buat mahasiswa. Aplikasi ini juga udah nyambung ke n8n buat kirim notif otomatis via Email & WhatsApp.
 
 ---
 
