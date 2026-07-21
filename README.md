@@ -1,58 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Lab Management System (LMS) - Universitas IPWIJA 🎓
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi **Lab Management System (LMS)** berbasis website untuk mempermudah proses administrasi laboratorium, manajemen inventaris, dan alur peminjaman alat oleh mahasiswa. Aplikasi ini terintegrasi dengan n8n untuk notifikasi otomatis (Email/WhatsApp).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🛠 Persyaratan Sistem (Prerequisites)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Anda bisa menjalankan aplikasi ini menggunakan **Docker (Laravel Sail)** atau secara manual menggunakan **XAMPP / Laragon / Local Server**.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Opsi 1 (Direkomendasikan)**: Docker Desktop
+- **Opsi 2**: PHP >= 8.2, Composer, Node.js, dan MySQL (via XAMPP/Laragon)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🚀 Cara Instalasi & Menjalankan (Menggunakan Docker / Laravel Sail)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Ini adalah cara paling direkomendasikan karena Anda tidak perlu menginstall PHP/MySQL secara manual di komputer Anda.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+1. **Clone Repository:**
+   ```bash
+   git clone https://github.com/jioodiff/software_process_lms.git
+   cd software_process_lms
+   ```
 
-## Agentic Development
+2. **Copy file `.env`:**
+   ```bash
+   cp .env.example .env
+   ```
+   *(Silakan edit file `.env` untuk mengatur `N8N_WEBHOOK_URL` & `N8N_API_KEY` jika Anda menggunakan fitur notifikasi).*
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+3. **Install Dependencies (Composer):**
+   Jika Anda **sudah memiliki** Composer di komputer lokal:
+   ```bash
+   composer install
+   ```
+   Jika **tidak memiliki** Composer (menggunakan Docker sepenuhnya):
+   - **Windows (PowerShell):**
+     ```powershell
+     docker run --rm -u "$((Get-Item .).CreationTime.ToString('u'))" -v "${PWD}:/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
+     ```
+   - **Mac/Linux:**
+     ```bash
+     docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
+     ```
 
-```bash
-composer require laravel/boost --dev
+4. **Jalankan Docker Container (Sail):**
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+   *(Untuk pengguna Windows, Anda bisa menjalankannya via WSL atau pastikan Docker Desktop berjalan).*
 
-php artisan boost:install
-```
+5. **Generate Application Key & Database:**
+   ```bash
+   ./vendor/bin/sail artisan key:generate
+   ./vendor/bin/sail artisan migrate:fresh --seed
+   ```
+   *(Perintah `--seed` di atas otomatis membuatkan akun Admin & Mahasiswa beserta data alat dummy).*
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+6. **Install NPM & Build Frontend (Vite):**
+   ```bash
+   ./vendor/bin/sail npm install
+   ./vendor/bin/sail npm run build
+   ```
+   *(Atau gunakan `./vendor/bin/sail npm run dev` jika ingin mode development).*
 
-## Contributing
+7. **Selesai! 🎉**
+   Buka browser Anda dan akses: **http://localhost**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🚀 Cara Instalasi & Menjalankan (Tanpa Docker / Menggunakan XAMPP / Laragon)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Jika Anda terbiasa menggunakan XAMPP atau Laragon, ikuti langkah berikut:
 
-## Security Vulnerabilities
+1. **Clone Repository:**
+   ```bash
+   git clone https://github.com/jioodiff/software_process_lms.git
+   cd software_process_lms
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+2. **Install Composer:**
+   ```bash
+   composer install
+   ```
 
-## License
+3. **Copy dan Atur `.env`:**
+   ```bash
+   cp .env.example .env
+   ```
+   Buka file `.env`, lalu atur konfigurasi database Anda (sesuaikan dengan pengaturan phpMyAdmin/MySQL Anda):
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=db_lab_management_system
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+4. **Buat Database Baru:**
+   Buka phpMyAdmin atau software database Anda, dan **buat database baru** dengan nama `db_lab_management_system`.
+
+5. **Generate Key, Link Storage & Migrate:**
+   Jalankan perintah ini berurutan:
+   ```bash
+   php artisan key:generate
+   php artisan storage:link
+   php artisan migrate:fresh --seed
+   ```
+   *(Pastikan perintah `storage:link` berhasil dijalankan agar gambar alat bisa tampil di aplikasi).*
+
+6. **Install NPM & Build Frontend:**
+   ```bash
+   npm install
+   npm run build
+   ```
+
+7. **Jalankan Local Server:**
+   ```bash
+   php artisan serve
+   ```
+
+8. **Selesai! 🎉**
+   Buka browser dan akses alamat yang diberikan (biasanya **http://localhost:8000**).
+
+---
+
+## 🔑 Akun Login (Otomatis Dibuat oleh Seeder)
+
+Anda bisa menggunakan kredensial berikut untuk *login* ke dalam sistem setelah menjalankan instalasi di atas.
+
+**Akun Administrator:**
+- **Email:** `admin@lms.com`
+- **Password:** `password`
+
+**Akun Mahasiswa:**
+- **Email:** `mahasiswa@lms.com`
+- **Password:** `password`
+
+---
+
+## ✨ Fitur Utama
+- **Autentikasi & Otorisasi** berbasis Role (Admin & Mahasiswa).
+- **Katalog Alat Interaktif** lengkap dengan ketersediaan stok *real-time*.
+- **Peminjaman & Pengembalian Alat** dengan validasi kondisi alat (Baik, Rusak, Hilang).
+- **Audit Log Terpusat (Append-Only)** untuk melacak aktivitas sistem.
+- **Pusat Laporan & Ekspor Data** ke CSV.
+- **Notifikasi Terintegrasi** menggunakan n8n Webhook.
