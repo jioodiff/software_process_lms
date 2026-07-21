@@ -1,23 +1,22 @@
 # Lab Management System (LMS) - Universitas IPWIJA 🎓
 
-Aplikasi **Lab Management System (LMS)** berbasis website untuk mempermudah proses administrasi laboratorium, manajemen inventaris, dan alur peminjaman alat oleh mahasiswa. Aplikasi ini terintegrasi dengan n8n untuk notifikasi otomatis (Email/WhatsApp).
+Aplikasi LMS berbasis website buat mempermudah administrasi lab, manajemen stok barang, dan proses pinjam-meminjam alat buat mahasiswa. Aplikasi ini juga udah nyambung ke n8n buat kirim notif otomatis via Email/WhatsApp lho!
 
 ---
 
-## 🛠 Persyaratan Sistem (Prerequisites)
+## 🛠 Syarat Sistem (Prerequisites)
 
-Anda bisa menjalankan aplikasi ini menggunakan **Docker (Laravel Sail)** atau secara manual menggunakan **XAMPP / Laragon / Local Server**.
-
-- **Opsi 1 (Direkomendasikan)**: Docker Desktop
+Bisa jalanin pakai **Docker (Laravel Sail)** atau cara klasik pakai **XAMPP / Laragon**.
+- **Opsi 1 (Paling gampang)**: Docker Desktop
 - **Opsi 2**: PHP >= 8.2, Composer, Node.js, dan MySQL (via XAMPP/Laragon)
 
 ---
 
-## 🚀 Cara Instalasi & Menjalankan (Menggunakan Docker / Laravel Sail)
+## 🚀 Cara Install & Jalanin via Docker / Laravel Sail (Recomended)
 
-Ini adalah cara paling direkomendasikan karena Anda tidak perlu menginstall PHP/MySQL secara manual di komputer Anda.
+Cara ini paling enak karena gak perlu ribet install PHP/MySQL di laptop kamu.
 
-1. **Clone Repository:**
+1. **Clone Repo:**
    ```bash
    git clone https://github.com/jioodiff/software_process_lms.git
    cd software_process_lms
@@ -27,14 +26,14 @@ Ini adalah cara paling direkomendasikan karena Anda tidak perlu menginstall PHP/
    ```bash
    cp .env.example .env
    ```
-   *(Silakan edit file `.env` untuk mengatur `N8N_WEBHOOK_URL` & `N8N_API_KEY` jika Anda menggunakan fitur notifikasi).*
+   *(Tinggal edit file `.env` kalau mau ngatur `N8N_WEBHOOK_URL` & `N8N_API_KEY` buat fitur notifnya).*
 
 3. **Install Dependencies (Composer):**
-   Jika Anda **sudah memiliki** Composer di komputer lokal:
+   Kalau udah ada Composer di laptop:
    ```bash
    composer install
    ```
-   Jika **tidak memiliki** Composer (menggunakan Docker sepenuhnya):
+   Kalau belum ada (pakai Docker aja):
    - **Windows (PowerShell):**
      ```powershell
      docker run --rm -u "$((Get-Item .).CreationTime.ToString('u'))" -v "${PWD}:/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
@@ -44,36 +43,34 @@ Ini adalah cara paling direkomendasikan karena Anda tidak perlu menginstall PHP/
      docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php83-composer:latest composer install --ignore-platform-reqs
      ```
 
-4. **Jalankan Docker Container (Sail):**
+4. **Jalanin Docker Container (Sail):**
    ```bash
    ./vendor/bin/sail up -d
    ```
-   *(Untuk pengguna Windows, Anda bisa menjalankannya via WSL atau pastikan Docker Desktop berjalan).*
 
-5. **Generate Application Key & Database:**
+5. **Generate Key & Setup Database:**
    ```bash
    ./vendor/bin/sail artisan key:generate
    ./vendor/bin/sail artisan migrate:fresh --seed
    ```
-   *(Perintah `--seed` di atas otomatis membuatkan akun Admin & Mahasiswa beserta data alat dummy).*
+   *(Perintah `--seed` ini bakal otomatis bikin akun Admin dan ngisi data alat dummy).*
 
-6. **Install NPM & Build Frontend (Vite):**
+6. **Build Frontend (Vite):**
    ```bash
    ./vendor/bin/sail npm install
    ./vendor/bin/sail npm run build
    ```
-   *(Atau gunakan `./vendor/bin/sail npm run dev` jika ingin mode development).*
 
 7. **Selesai! 🎉**
-   Buka browser Anda dan akses: **http://localhost**
+   Buka browser dan ketik: **http://localhost**
 
 ---
 
-## 🚀 Cara Instalasi & Menjalankan (Tanpa Docker / Menggunakan XAMPP / Laragon)
+## 🚀 Cara Install & Jalanin Tanpa Docker (Pakai XAMPP / Laragon)
 
-Jika Anda terbiasa menggunakan XAMPP atau Laragon, ikuti langkah berikut:
+Buat yang lebih suka pakai XAMPP atau Laragon:
 
-1. **Clone Repository:**
+1. **Clone Repo:**
    ```bash
    git clone https://github.com/jioodiff/software_process_lms.git
    cd software_process_lms
@@ -84,11 +81,11 @@ Jika Anda terbiasa menggunakan XAMPP atau Laragon, ikuti langkah berikut:
    composer install
    ```
 
-3. **Copy dan Atur `.env`:**
+3. **Copy `.env`:**
    ```bash
    cp .env.example .env
    ```
-   Buka file `.env`, lalu atur konfigurasi database Anda (sesuaikan dengan pengaturan phpMyAdmin/MySQL Anda):
+   Lalu buka file `.env` dan setting koneksi databasenya (sesuaikan sama phpMyAdmin kamu):
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -98,52 +95,50 @@ Jika Anda terbiasa menggunakan XAMPP atau Laragon, ikuti langkah berikut:
    DB_PASSWORD=
    ```
 
-4. **Buat Database Baru:**
-   Buka phpMyAdmin atau software database Anda, dan **buat database baru** dengan nama `db_lab_management_system`.
+4. **Bikin Database Baru:**
+   Buka phpMyAdmin, trus bikin database baru dengan nama `db_lab_management_system`.
 
 5. **Generate Key, Link Storage & Migrate:**
-   Jalankan perintah ini berurutan:
+   Jalanin perintah ini berurutan ya:
    ```bash
    php artisan key:generate
    php artisan storage:link
    php artisan migrate:fresh --seed
    ```
-   *(Pastikan perintah `storage:link` berhasil dijalankan agar gambar alat bisa tampil di aplikasi).*
+   *(Note: `storage:link` wajib banget supaya gambar alatnya bisa muncul).*
 
-6. **Install NPM & Build Frontend:**
+6. **Build Frontend:**
    ```bash
    npm install
    npm run build
    ```
 
-7. **Jalankan Local Server:**
+7. **Jalanin Local Server:**
    ```bash
    php artisan serve
    ```
 
 8. **Selesai! 🎉**
-   Buka browser dan akses alamat yang diberikan (biasanya **http://localhost:8000**).
+   Akses di browser lewat URL yang muncul (biasanya **http://localhost:8000**).
 
 ---
 
-## 🔑 Akun Login (Otomatis Dibuat oleh Seeder)
+## 🔑 Akun Login Bawaan
 
-Anda bisa menggunakan kredensial berikut untuk *login* ke dalam sistem setelah menjalankan instalasi di atas.
+Begitu selesai di-install, kamu bisa langsung login pakai akun bawaan (dari seeder) ini:
 
 **Akun Administrator:**
-- **Email:** `admin@lms.com`
+- **Email:** `admin@ipwija.ac.id`
 - **Password:** `password`
 
-**Akun Mahasiswa:**
-- **Email:** `mahasiswa@lms.com`
-- **Password:** `password`
+*(Catatan: Akun mahasiswa sengaja nggak dibikin dari awal, jadi nanti mahasiswa bisa langsung daftar sendiri lewat halaman Register).*
 
 ---
 
 ## ✨ Fitur Utama
 - **Autentikasi & Otorisasi** berbasis Role (Admin & Mahasiswa).
-- **Katalog Alat Interaktif** lengkap dengan ketersediaan stok *real-time*.
-- **Peminjaman & Pengembalian Alat** dengan validasi kondisi alat (Baik, Rusak, Hilang).
-- **Audit Log Terpusat (Append-Only)** untuk melacak aktivitas sistem.
-- **Pusat Laporan & Ekspor Data** ke CSV.
-- **Notifikasi Terintegrasi** menggunakan n8n Webhook.
+- **Katalog Alat Interaktif** dengan stok yang selalu update secara *real-time*.
+- **Peminjaman & Pengembalian Alat** lengkap dengan pengecekan kondisi (Baik, Rusak, Hilang).
+- **Audit Log (Append-Only)** buat nyatet semua aktivitas sistem biar aman.
+- **Pusat Laporan** yang datanya bisa di-export ke CSV.
+- **Notifikasi Terintegrasi** pakai n8n Webhook.
